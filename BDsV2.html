@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>BDs</title>
+        <style>
+            body
+            {
+                background-color: aqua;
+            }
+            .list
+            {
+                background-color: pink;
+                width: 480px;
+                border-radius: 7px;
+                padding-left: 10px;
+                margin-top: 7px;
+                display: flex;
+                flex-direction: row;
+            }
+            .addButton
+            {
+                background-color: blueviolet;
+                border-radius: 7px;
+                transition:background-color 0.5s,box-shadow 0.5s;
+                
+            }
+            .addButton:hover
+            {
+                box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.60);
+                background-color: pink;
+                cursor: pointer;
+                
+            }
+            .addButton:active
+            {
+                cursor:cell;
+            }
+            .clearButton
+            {
+                background-color: rgb(235, 8, 8);
+                border-radius: 7px;
+                transition:background-color 0.5s,box-shadow 0.5s;
+            }
+            .clearButton:hover
+            {
+                box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.60);
+                background-color: pink;
+                cursor: pointer;
+                
+            }
+            .clearButton:active
+            {
+                cursor:-webkit-grab;
+            }
+            .namesList
+            {
+                display: inline-block;
+                width: 160px;
+                /*margin-right: 125px;*/
+            }
+            .datesList
+            {
+                display: inline-block;
+                margin-right: 50px;
+            }
+            .nameInput
+            {
+                margin-left: 4px;
+                width: 150px
+            }
+        </style>
+    </head>
+    <body>
+        <div class="calendar">
+            <div class="main">
+                <input class="nameInput" id="nameInput" type="text">
+                <input class="dateInput" id="dateInput" type="date">
+                <button class="addButton" onclick="addBD()">ADD</button>
+                <button class="clearButton" onclick="clearList()">CLEAR</button>
+            </div>
+            <div id="list" class="list">
+                <div id="namesList" class="namesList"></div>
+                <div id="datesList" class="datesList"></div>
+                <div id="removeButtonList" class="removeButtonList"></div>
+            </div>
+        </div>
+
+
+
+        <script>
+            
+            //Model
+            let BDsList;
+            let IDCounter;
+            let savedBDs=JSON.parse(localStorage.getItem("BDs"));
+            let savedCounter=JSON.parse(localStorage.getItem("IDCounter"));
+            if(Array.isArray(savedBDs)) {
+                BDsList=savedBDs;
+                IDCounter=savedCounter;
+            }else{
+                BDsList=[{id:1,name:"7oss",date:"2001-10-1"},{id:2,name:"Mazen",date:"2001-10-18"},{id:3,name:"Ahmed",date:"2005-6-16"}];
+                IDCounter=4;
+            }
+            let removedIDList=[];
+            render();
+
+
+            function createBD()
+            {
+                BDsList.push({id:IDCounter++,name:document.getElementById("nameInput").value,date:document.getElementById("dateInput").value});
+                saveData();
+            }
+
+            function deleteBD(id)
+            {
+                BDsList=BDsList.filter(function(removedID)
+                {
+                    return removedID.id!==id;
+                });
+                saveData();
+            }
+
+            function saveData()
+            {
+                localStorage.setItem("BDs",JSON.stringify(BDsList));
+                localStorage.setItem("IDCounter",JSON.stringify(IDCounter));
+            }
+
+
+
+            //Controller
+            function addBD()
+            {
+                createBD()
+                render();
+            };
+
+            function removeBD(id)
+            {
+                removedIDList.push(id);
+                deleteBD(id);
+                render();
+            };
+
+            function clearList()
+            {
+                while(BDsList.length>0)
+                {
+                    BDsList.pop();
+                }
+                render();
+            };
+
+            //view
+            function render()
+            {
+                document.getElementById("namesList").innerHTML="";
+                document.getElementById("datesList").innerHTML="";
+                document.getElementById("removeButtonList").innerHTML="";
+                BDsList.forEach(function(BD)
+                {
+                    let nameElement=document.createElement("div");
+                    nameElement.innerText=BD.name;
+                    nameElement.id=BD.id;
+                    nameElement.style="margin-bottom:10px";
+                    document.getElementById("namesList").appendChild(nameElement);
+
+                    let BDElement=document.createElement("div");
+                    BDElement.innerText=BD.date;
+                    BDElement.id=BD.id;
+                    BDElement.style="margin-bottom:10px";
+                    document.getElementById("datesList").appendChild(BDElement);
+                        
+                    let removeElement=document.createElement("button");
+                    removeElement.innerText="X";
+                    removeElement.id=BD.id;
+                    removeElement.onclick=function(){removeBD(parseInt(this.id));}
+                    removeElement.style.display="block";
+                    removeElement.style.marginBottom="6.5px";
+                    document.getElementById("removeButtonList").appendChild(removeElement);
+                
+                });
+            }
+        </script>
+    </body>
+</html>
